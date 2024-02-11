@@ -1,1 +1,134 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Inscriptory</title>
+    <style>
+        body { background-color: white; color: black; font-family: Arial, sans-serif; }
+        h1, h2, p { margin: 0.5em; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        td { word-break: break-all }
+        th { background-color: #f2f2f2; }
+        td img { width: 50px; height: 50px; }
+        #sortButtons { display: none; }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Inscriptory</h1>
+    <p>For ord wallet users only.</p>
+    <ol>
+        <li>Run <code>'ord wallet inscriptions > inscript.json'</code> to capture your inscriptions.</li>
+        <li>Run <code>'ord server -j'</code> to run the ord server locally with JSON API enabled.</li>
+        <li>Upload <code>inscript.json</code> below:</li>
+    </ol>
+    <input type="file" id="fileInput">
+    <br>
+    <p>You'll need to upload the file again if you've sent or received new inscriptions.</p>
+    <br>
+    <div id="sortButtons">
+        <button id="sortByNumber">Sort by number</button>
+        <button id="sortByType">Sort by type</button>
+        <button id="sortByAddress">Sort by address</button>
+    </div>
+</header>
+
+<main>
+    <h2>Your inscriptions:</h2>
+    <table id="inscriptionTable">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Inscription #</th>
+                <th>Content</th>
+                <th>Type</th>
+                <th>Details</th>
+                <th>Address</th>
+            </tr>
+        </thead>
+        <tbody id="inscriptionBody"></tbody>
+    </table>
+</main>
+
+<script>
+    let inscriptions = [];
+
+    document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+    document.getElementById('sortByNumber').addEventListener('click', sortByNumber);
+    document.getElementById('sortByType').addEventListener('click', sortByType);
+    document.getElementById('sortByAddress').addEventListener('click', sortByAddress);
+
+    function handleFileSelect(event) {
+        const file = event?.target?.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async function() {
+            let json;
+            try { json = JSON.parse(reader.result)}
+            catch (e) { throw `Error parsing JSON: ${e}` }
+
+            inscriptions = await Promise.all(json.map(insc =>
+                fetch(
+                    `http://127.0.0.1/inscription/${insc.inscription}`,
+                    { headers: { accept:'application/json' }}
+                ).then(response => response.json())
+            ));
+
+            document.getElementById('sortButtons').style.display = "block";
+            renderAllInscriptions();
+        };
+        reader.readAsText(file);
+    }
+
+    async function renderAllInscriptions() {
+        const inscriptionBody = document.getElementById("inscriptionBody");
+        let html = '';
+        for (let i=0; i < inscriptions.length; i++) {
+            html += await generateTableRow(inscriptions[i], i+1);
+        }
+        inscriptionBody.innerHTML = html;
+    }
+
+    async function generateTableRow(inscription, count) {
+        return `
+        <tr>
+            <td>${count}</td>
+            <td>${inscription.inscription_number}</td>
+            <td>${await getContent(inscription)}</td>
+            <td>${inscription.content_type}</td>
+            <td>
+                <a href='http://127.0.0.1/inscription/${inscription.inscription_id}' target='_blank'>
+                    Details
+                </a>
+            </td>
+            <td>${inscription.address}</td>
+        <tr>`;
+    }
+
+    async function getContent(inscription) {
+        const url = `http://127.0.0.1/content/${inscription.inscription_id}`;
+        return inscription.content_type.startsWith("image")
+            ? `<img src='${url}'/>`
+            : await (await fetch(url)).text();
+    }
+
+    function sortByNumber() {
+        inscriptions.sort((a, b) => a.inscription_number - b.inscription_number);
+        renderAllInscriptions();
+    }
+
+    function sortByType() {
+        inscriptions.sort((a, b) => a.content_type.localeCompare(b.content_type));
+        renderAllInscriptions();
+    }
+
+    function sortByAddress() {
+        inscriptions.sort((a, b) => a.address.localeCompare(b.address));
+        renderAllInscriptions();
+    }
+</script>
+</body>
+</html>
