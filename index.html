@@ -110,9 +110,10 @@
 
     async function getContent(inscription) {
         const url = `http://127.0.0.1/content/${inscription.inscription_id}`;
-        return inscription.content_type.startsWith("image")
-            ? `<img src='${url}'/>`
-            : await (await fetch(url)).text();
+        return
+            inscription.content_type.startsWith("image") ? `<img src='${url}'/>` :
+            inscription.content_type.startsWith("text/html") ? `<a href="https://ordinals.com/content/${inscription_id}">Link</a>` :
+            await (await fetch(url)).text();
     }
 
     function sortByNumber() {
