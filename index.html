@@ -40,13 +40,12 @@
     <table id="inscriptionTable">
         <thead>
             <tr>
-                <th>#</th>
-                <th>Inscription #</th>
-                <th>Content</th>
+                <th>ID</th>
+                <th>Number</th>
                 <th>Type</th>
-                <th>Details</th>
                 <th>Magic Eden</th>
                 <th>Address</th>
+                <th>Content</th>
             </tr>
         </thead>
         <tbody id="inscriptionBody"></tbody>
@@ -79,7 +78,7 @@
             ));
 
             document.getElementById('sortButtons').style.display = "block";
-            renderAllInscriptions();
+            sortByNumber();
         };
         reader.readAsText(file);
     }
@@ -96,21 +95,16 @@
     async function generateTableRow(inscription, count) {
         return `
         <tr>
-            <td>${count}</td>
+            <td>${inscription.inscription_id}</td>
             <td>${inscription.inscription_number}</td>
-            <td>${await getContent(inscription)}</td>
             <td>${inscription.content_type}</td>
-            <td>
-                <a href='http://127.0.0.1/inscription/${inscription.inscription_id}' target='_blank'>
-                    Details
-                </a>
-            </td>
             <td>
                 <a href='https://magiceden.io/ordinals/item-details/${inscription.inscription_id}' target='_blank'>
                     ME
                 </a>
             </td>
             <td>${inscription.address}</td>
+            <td>${await getContent(inscription)}</td>
         <tr>`;
     }
 
