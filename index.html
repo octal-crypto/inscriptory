@@ -100,7 +100,7 @@
             <td>${inscription.content_type}</td>
             <td>
                 <a href='https://magiceden.io/ordinals/item-details/${inscription.inscription_id}' target='_blank'>
-                    Link
+                    Magic Eden
                 </a>
             </td>
             <td>${inscription.address}</td>
@@ -115,7 +115,7 @@
           (
               inscription.content_type.startsWith("text/html") ||
               inscription.content_type.startsWith("model/gltf+json")
-          ) ? `<a href="https://ordinals.com/content/${inscription.inscription_id}" target="_blank">Link</a>` :
+          ) ? `<a href="https://ordinals.com/content/${inscription.inscription_id}" target="_blank">Content</a>` :
           await (await fetch(url)).text());
     }
 
