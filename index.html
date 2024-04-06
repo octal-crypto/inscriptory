@@ -93,13 +93,14 @@
     }
 
     async function generateTableRow(inscription, count) {
+        const id = inscription.id ?? inscription.inscription_id;
         return `
         <tr>
-            <td>${inscription.inscription_id}</td>
+            <td>${id}</td>
             <td>${inscription.inscription_number}</td>
             <td>${inscription.content_type}</td>
             <td>
-                <a href='https://magiceden.io/ordinals/item-details/${inscription.inscription_id}' target='_blank'>
+                <a href='https://magiceden.io/ordinals/item-details/${id}' target='_blank'>
                     ME
                 </a>
             </td>
@@ -109,13 +110,14 @@
     }
 
     async function getContent(inscription) {
-        const url = `http://127.0.0.1/content/${inscription.inscription_id}`;
+        const id = inscription.id ?? inscription.inscription_id;
+        const url = `http://127.0.0.1/content/${id}`;
         return (
           inscription.content_type.startsWith("image") ? `<img src='${url}'/>` :
           (
               inscription.content_type.startsWith("text/html") ||
               inscription.content_type.startsWith("model/gltf+json")
-          ) ? `<a href="https://ordinals.com/content/${inscription.inscription_id}" target="_blank">Content</a>` :
+          ) ? `<a href="https://ordinals.com/content/${id}" target="_blank">Content</a>` :
           await (await fetch(url)).text());
     }
 
