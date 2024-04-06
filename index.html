@@ -97,7 +97,7 @@
         return `
         <tr>
             <td>${id}</td>
-            <td>${inscription.inscription_number}</td>
+            <td>${inscription.number ?? inscription.inscription_number}</td>
             <td>${inscription.content_type}</td>
             <td>
                 <a href='https://magiceden.io/ordinals/item-details/${id}' target='_blank'>
@@ -122,7 +122,8 @@
     }
 
     function sortByNumber() {
-        inscriptions.sort((a, b) => a.inscription_number - b.inscription_number);
+        const n = i => (i.number ?? i.inscription_number);
+        inscriptions.sort((a, b) => n(a) - n(b);
         renderAllInscriptions();
     }
 
