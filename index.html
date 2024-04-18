@@ -112,12 +112,13 @@
     async function getContent(inscription) {
         const id = inscription.id ?? inscription.inscription_id;
         const url = `http://127.0.0.1/content/${id}`;
+        const contentType = inscription.effective_content_type ?? inscription.content_type;
         return (
-          inscription.content_type.startsWith("image") ? `<img src='${url}'/>` :
+          contentType.startsWith("image") ? `<img src='${url}'/>` :
           (
-              inscription.content_type.startsWith("text/html") ||
-              inscription.content_type.startsWith("model/gltf+json")
-          ) ? `<a href="https://ordinals.com/content/${id}" target="_blank">Content</a>` :
+              contentType.startsWith("text/html") ||
+              contentType.startsWith("model/gltf+json")
+          ) ? `<a href="http://127.0.0.1/content/${id}" target="_blank">Content</a>` :
           await (await fetch(url)).text());
     }
 
